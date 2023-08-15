@@ -334,3 +334,5 @@ enum struct PlayerData {
 PlayerData g_iPlayer[MAXPLAYERS + 1];
 
 bool g_bSpawnAllowed = true;
+
+Maul g_MaulApi;

@@ -8,6 +8,7 @@
 #include <emitsoundany>
 #include <ttt>
 #include <ttt_sql>
+#include <MaulAPI>
 
 // #undef REQUIRE_EXTENSIONS
 // #define REQUIRE_EXTENSIONS
@@ -1711,7 +1712,19 @@ void BanBadPlayerKarma(int client) {
         SBPP_BanPlayer(0, client, g_ckarmaBanLength.IntValue, sReason);
 #endif
     } else {
-        ServerCommand("sm_ban #%d %d \"%s\"", GetClientUserId(client), g_ckarmaBanLength.IntValue, sReason);
+        char notes[TTT_LOG_SIZE * 30];
+        char line[TTT_LOG_SIZE];
+        for (int i = 0; i < g_aLogs.Length; i++) {
+            g_aLogs.GetString(i, line, sizeof(line));
+            if (StrContains(line, g_iPlayer[client].Name) == -1)
+                continue;
+            if(strlen(notes) + strlen(line) >= sizeof(notes))
+                break;
+            StrCat(notes, sizeof(notes), line);
+            StrCat(notes, sizeof(notes), "<br>");
+        }
+        g_MaulApi.CreateBan(client, 0, g_ckarmaBanLength.IntValue, sReason, notes);
+        // ServerCommand("sm_ban #%d %d \"%s\"", GetClientUserId(client), g_ckarmaBanLength.IntValue, sReason);
     }
 }
 
