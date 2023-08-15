@@ -1751,7 +1751,7 @@ void BanBadPlayerKarma(int client) {
         }
 
         g_MaulApi.CreateBan(client, 0, g_ckarmaBanLength.IntValue, sReason, notes);
-        // ServerCommand("sm_ban #%d %d \"%s\"", GetClientUserId(client), g_ckarmaBanLength.IntValue, sReason);
+        KickClient(client, "Banned for %d minutes: %s. Use edgegamers.com to appeal", g_ckarmaBanLength.IntValue, sReason);
     }
 }
 
