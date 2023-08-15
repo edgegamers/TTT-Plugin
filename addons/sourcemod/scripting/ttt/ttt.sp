@@ -1712,17 +1712,44 @@ void BanBadPlayerKarma(int client) {
         SBPP_BanPlayer(0, client, g_ckarmaBanLength.IntValue, sReason);
 #endif
     } else {
-        char notes[TTT_LOG_SIZE * 30];
-        char line[TTT_LOG_SIZE];
-        for (int i = 0; i < g_aLogs.Length; i++) {
-            g_aLogs.GetString(i, line, sizeof(line));
-            if (StrContains(line, g_iPlayer[client].Name) == -1)
-                continue;
-            if(strlen(notes) + strlen(line) >= sizeof(notes))
-                break;
-            StrCat(notes, sizeof(notes), line);
-            StrCat(notes, sizeof(notes), "<br>");
+        char notes[TTT_LOG_SIZE * 50];
+        // StrCat(notes, sizeof(notes), "Karma: " + )
+        int iKarma = g_iPlayer[client].Karma;
+        if (iKarma < 0) {
+            iKarma *= -1;
         }
+        char map[PLATFORM_MAX_PATH];
+        GetCurrentMap(map, sizeof(map));
+        Format(notes, sizeof(notes), "Karma: %d Map: %s", g_iPlayer[client].Karma, map);
+        if (g_aLogs.Length > 0) {
+            StrCat(notes, sizeof(notes), "<br>Role: ");
+            switch (g_iPlayer[client].Role) {
+                case TTT_TEAM_UNASSIGNED:
+                    StrCat(notes, sizeof(notes), "Unassigned");
+                case TTT_TEAM_INNOCENT:
+                    StrCat(notes, sizeof(notes), "Innocent");
+                case TTT_TEAM_TRAITOR:
+                    StrCat(notes, sizeof(notes), "Traitor");
+                case TTT_TEAM_DETECTIVE:
+                    StrCat(notes, sizeof(notes), "Detective");
+                default:
+                    StrCat(notes, sizeof(notes), "Unknown");
+            }
+            StrCat(notes, sizeof(notes), "<br>Logs:<br>");
+            char line[TTT_LOG_SIZE];
+            for (int i = 0; i < g_aLogs.Length; i++) {
+                g_aLogs.GetString(i, line, sizeof(line));
+                if (StrContains(line, g_iPlayer[client].Name) == -1)
+                    continue;
+                if (strlen(notes) + strlen(line) >= sizeof(notes))
+                    break;
+                StrCat(notes, sizeof(notes), line);
+                if (i == g_aLogs.Length - 1)
+                    break;
+                StrCat(notes, sizeof(notes), "<br>");
+            }
+        }
+
         g_MaulApi.CreateBan(client, 0, g_ckarmaBanLength.IntValue, sReason, notes);
         // ServerCommand("sm_ban #%d %d \"%s\"", GetClientUserId(client), g_ckarmaBanLength.IntValue, sReason);
     }
